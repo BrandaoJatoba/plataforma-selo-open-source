@@ -18,3 +18,46 @@ Um sistema web para gerenciar o ciclo completo do **Selo FIEA**: cadastro de ind
 - **V1.2**: analytics avançados, benchmarking setorial, API pública de verificação do selo, webhooks para integrações.
 
 ---
+ 
+ # Documentação Front-end
+
+ O front-end está sendo desenvolvido utilizando React, TypeScript e Vite. O projeto consiste em uma Single Page Application (SPA) com rotas para a página de apresentação e para a área de autenticação.
+
+## 1) Tecnologias
+Atualmente nós estamos usando:
+- Vite
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- React Router DOM
+- Lucide React
+
+ ## 2) Estrutura do projeto 
+```
+ /selo-fiea-frontend
+├── src/
+│   ├── components/      # Componentes reutilizáveis (Header, Footer, AuthForm...)
+│   ├── pages/           # Componentes de página (LandingPage, LoginPage)
+│   ├── App.tsx          # Configuração principal das rotas da aplicação
+│   ├── main.tsx         # Ponto de entrada da aplicação (renderiza o App)
+│   └── index.css        # Estilos globais e configuração do Tailwind
+├── package.json         # Dependências e scripts do projeto
+└── vite.config.ts       # Configuração do Vite e do plugin do Tailwind
+```
+
+## 3) Execução
+
+### Pré-requisitos 
+- Node.js
+- npm
+
+### Instalação
+```npm install```
+
+```npm run dev```
+
+## 4) Rotas
+Atualmente temos as seguintes rotas configuradas em ```src/App.tsx```:
+- ```/```: Renderiza o componente ```LandingPage.tsx```
+- ```/login```: Renderiza o componente ```LoginPage.tsx```
+    - Essa cujo tambem aceita um parâmetro de busca ```?tab=register``` (por exemplo: ```/login?tab=register```) para abrir diretamente na aba de cadastro
