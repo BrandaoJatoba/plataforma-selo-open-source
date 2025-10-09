@@ -35,8 +35,7 @@ export function ResetPasswordPage() {
         return;
     }
 
-    // TODO: Chamar a API do back-end aqui
-    // Exemplo:
+    // ! Para chamar a API do back-end aqui
     // try {
     //   const response = await fetch('/api/password/reset', {
     //     method: 'POST',
@@ -46,13 +45,13 @@ export function ResetPasswordPage() {
     //   // if (response.ok) ...
     // } catch (error) { ... }
 
-    // Simulação de sucesso para o front-end:
+    // simulação
     console.log("Redefinindo senha com o token:", token);
     setMessage('Senha redefinida com sucesso! Você será redirecionado para o login.');
     
     setTimeout(() => {
         navigate('/login');
-    }, 3000); // Redireciona após 3 segundos
+    }, 3000); 
   };
 
   return (
