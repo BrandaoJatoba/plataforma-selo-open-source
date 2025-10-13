@@ -52,6 +52,8 @@ Atualmente nós estamos usando:
 - npm
 
 ### Instalação
+```cd selo-fiea-frontend```
+
 ```npm install```
 
 ```npm run dev```
