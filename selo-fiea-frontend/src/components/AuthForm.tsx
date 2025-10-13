@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-// Define os tipos das props que o componente vai receber
 interface AuthFormProps {
   initialTab?: string | null;
 }
 
 export function AuthForm({ initialTab }: AuthFormProps) {
-  
-  // Define o estado inicial com base na prop recebida
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(
     initialTab === 'register' ? 'register' : 'login'
   );
+  
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Garante que a aba mude se a URL for alterada enquanto o componente já está na tela
   useEffect(() => {
     if (initialTab === 'register') {
       setActiveTab('register');
@@ -21,6 +22,24 @@ export function AuthForm({ initialTab }: AuthFormProps) {
       setActiveTab('login');
     }
   }, [initialTab]);
+
+  const handleLoginSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    // ! Chamar a API de login do back-end aqui
+    // A API deve retornar um erro 401 ou similar para credenciais inválidas.
+    // O back-end é que vai ser responsável por contar as tentativas de login.
+    console.log("Tentativa de login com:", { email: loginEmail, password: loginPassword });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Exibir mensagem de erro sem revelar qual campo está incorreto.
+    setErrorMessage("E-mail ou senha inválidos. Verifique seus dados e tente novamente.");
+
+    setIsLoading(false);
+  };
 
   const getTabClassName = (tabName: 'login' | 'register') => {
     const baseClasses = "flex-1 py-3 font-semibold text-center rounded-t-lg focus:outline-none transition-colors";
@@ -42,21 +61,43 @@ export function AuthForm({ initialTab }: AuthFormProps) {
           </button>
         </div>
 
-        {/* Formulário de Login */}
         {activeTab === 'login' && (
           <div>
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Acessar Portal</h2>
               <p className="text-gray-500 mt-1">Bem-vindo de volta!</p>
             </div>
-            <form>
+            <form onSubmit={handleLoginSubmit}>
+              {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
+                  <span className="block sm:inline">{errorMessage}</span>
+                </div>
+              )}
               <div className="mb-4">
                 <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                <input type="email" id="login-email" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="email@empresa.com.br" required />
+                <input 
+                  type="email" 
+                  id="login-email" 
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                  placeholder="email@empresa.com.br" 
+                  required 
+                  disabled={isLoading}
+                />
               </div>
               <div className="mb-6">
                 <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                <input type="password" id="login-password" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••" required />
+                <input 
+                  type="password" 
+                  id="login-password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                  placeholder="••••••••" 
+                  required
+                  disabled={isLoading}
+                />
               </div>
               <div className="flex items-center justify-end mb-6">
                 <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:underline">
@@ -64,14 +105,16 @@ export function AuthForm({ initialTab }: AuthFormProps) {
                 </Link>
               </div>
               <div>
-                <button type="submit" className="w-full bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-800 transition-all shadow-sm">Entrar</button>
+                <button type="submit" className="w-full bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-800 transition-all shadow-sm disabled:bg-blue-400" disabled={isLoading}>
+                  {isLoading ? 'Entrando...' : 'Entrar'}
+                </button>
               </div>
             </form>
           </div>
         )}
 
-        {/* Formulário de Cadastro */}
         {activeTab === 'register' && (
+          // O formulário de cadastro não foi alterado por essas HUs
           <div>
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Criar Nova Conta</h2>
