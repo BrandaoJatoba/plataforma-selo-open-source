@@ -29,11 +29,22 @@ export function AuthForm({ initialTab }: AuthFormProps) {
     setIsLoading(true);
     setErrorMessage(null);
 
-    console.log("Tentativa de login com:", { email: loginEmail, password: loginPassword });
-
+    // Simula a demora de uma chamada de rede
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    navigate('/dashboard');
+
+    // SOMENTE estas credenciais específicas irão funcionar
+    const testEmail = 'gestor@selofiea.com.br';
+    const testPassword = 'Password@123';
+
+    if (loginEmail === testEmail && loginPassword === testPassword) {
+      // Caso de sucesso: credenciais corretas
+      console.log('Login de teste bem-sucedido!');
+      navigate('/dashboard');
+    } else {
+      // Caso de falha: credenciais incorretas
+      console.log('Credenciais de teste inválidas.');
+      setErrorMessage("E-mail ou senha inválidos. Verifique seus dados e tente novamente.");
+    }
 
     setIsLoading(false);
   };
