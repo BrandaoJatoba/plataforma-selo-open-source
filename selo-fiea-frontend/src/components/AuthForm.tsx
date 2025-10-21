@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface AuthFormProps {
   initialTab?: string | null;
 }
 
 export function AuthForm({ initialTab }: AuthFormProps) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(
     initialTab === 'register' ? 'register' : 'login'
   );
@@ -28,15 +29,22 @@ export function AuthForm({ initialTab }: AuthFormProps) {
     setIsLoading(true);
     setErrorMessage(null);
 
-    // ! Chamar a API de login do back-end aqui
-    // A API deve retornar um erro 401 ou similar para credenciais inválidas.
-    // O back-end é que vai ser responsável por contar as tentativas de login.
-    console.log("Tentativa de login com:", { email: loginEmail, password: loginPassword });
-
+    // Simula a demora de uma chamada de rede
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Exibir mensagem de erro sem revelar qual campo está incorreto.
-    setErrorMessage("E-mail ou senha inválidos. Verifique seus dados e tente novamente.");
+
+    // SOMENTE estas credenciais específicas irão funcionar
+    const testEmail = 'gestor@selofiea.com.br';
+    const testPassword = 'Password@123';
+
+    if (loginEmail === testEmail && loginPassword === testPassword) {
+      // Caso de sucesso: credenciais corretas
+      console.log('Login de teste bem-sucedido!');
+      navigate('/dashboard');
+    } else {
+      // Caso de falha: credenciais incorretas
+      console.log('Credenciais de teste inválidas.');
+      setErrorMessage("E-mail ou senha inválidos. Verifique seus dados e tente novamente.");
+    }
 
     setIsLoading(false);
   };
@@ -114,7 +122,6 @@ export function AuthForm({ initialTab }: AuthFormProps) {
         )}
 
         {activeTab === 'register' && (
-          // O formulário de cadastro não foi alterado por essas HUs
           <div>
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Criar Nova Conta</h2>
