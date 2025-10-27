@@ -21,13 +21,13 @@ export interface Badge {
 const MOCKED_BADGES: Badge[] = [
   { 
     id: 1, 
-    name: 'Selo FIEA', 
+    name: 'Selo FIEA 2025', 
     description: 'Concedido a empresas com excelência em gestão, sustentabilidade ambiental e inovação tecnológica.',
     validadeMeses: 12,
-    dataInicioEmissao: new Date('2023-01-01'),
-    dataFimEmissao: new Date('2023-12-31'),
+    dataInicioEmissao: new Date('2025-01-01'),
+    dataFimEmissao: new Date('2025-12-31'),
     icon: badgeIcon,
-    criteria: ['Qualidade de Gestão', 'Sustentabilidade Ambiental', 'Inovação Tecnológica'] 
+    criteria: ['Qualidade', 'Sustentabilidade', 'Inovação Tecnológica'] 
   },
 ];
 
