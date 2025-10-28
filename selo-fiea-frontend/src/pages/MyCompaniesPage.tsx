@@ -1,32 +1,58 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { LoginHeader } from "../components/LoginHeader";
 import { Footer } from "../components/Footer";
+import { PlusCircle } from "lucide-react";
+import { CompanyModal, type Company } from "../components/CompanyModal";
 
-interface Company {
-  id: number;
-  razao_social: string;
-  nome_fantasia?: string;
-  cnpj: string;
-  setor?: string;
-  porte?: 'Pequeno' | 'Médio' | 'Grande';
-  endereco?: string;
-  email?: string;
-  telefone?: string;
-  status: 'Ativa' | 'Desativada';
-}
 
 // Dados mocados para simular a API
 const MOCKED_COMPANIES: Company[] = [
-  { id: 1, razao_social: 'Indústria Alfa Ltda.', nome_fantasia: 'Alfa Metais', cnpj: '00.000.000/0001-00', setor: 'Metalurgia', porte: 'Médio', status: 'Ativa' },
-  { id: 2, razao_social: 'Indústria Beta Ltda.', nome_fantasia: 'Beta Alimentos', cnpj: '11.111.111/0001-11', setor: 'Alimentício', porte: 'Grande', status: 'Ativa' },
-  { id: 3, razao_social: 'Indústria Gama Ltda.', nome_fantasia: 'Gama Têxtil', cnpj: '22.222.222/0001-22', setor: 'Têxtil', porte: 'Pequeno', status: 'Desativada' },
+  {
+    id: 1,
+    razao_social: 'Indústria Alfa Ltda.',
+    nome_fantasia: 'Alfa Metais',
+    cnpj: '00.000.000/0001-00',
+    setor: 'Metalurgia',
+    porte: 'Médio',
+    status: 'Ativa',
+    endereco: 'Rua das Industias - Distrito Industrial, Maceió - AL',
+    email: 'contato@alfametais.com.br',
+    telefone: '(11) 11111-1111'
+  },
+  {
+    id: 2,
+    razao_social: 'Indústria Beta Ltda.',
+    nome_fantasia: 'Beta Alimentos',
+    cnpj: '11.111.111/0001-11',
+    setor: 'Alimentício',
+    porte: 'Grande',
+    status: 'Ativa',
+    endereco: 'Rua das Industias - Distrito Industrial, Maceió - AL',
+    email: 'contato@betaalimentos.com.br',
+    telefone: '(22) 22222-2222'
+  },
+  {
+    id: 3,
+    razao_social: 'Indústria Gama Ltda.',
+    nome_fantasia: 'Gama Têxtil',
+    cnpj: '22.222.222/0001-22',
+    setor: 'Têxtil',
+    porte: 'Pequeno',
+    status: 'Desativada',
+    endereco: 'Rua das Industias - Distrito Industrial, Maceió - AL',
+    email: 'contato@gamatextil.com.br',
+    telefone: '(33) 33333-3333'
+  },
 ];
+
 
 export function MyCompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -47,6 +73,27 @@ export function MyCompaniesPage() {
     fetchCompanies();
   }, []);
 
+  const handleOpenModal = (company: Company | null) => {
+    setEditingCompany(company);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingCompany(null);
+  };
+
+  const handleSaveCompany = (companyToSave: Company) => {
+    if (editingCompany) { // Editando
+      setCompanies(companies.map(c => c.id === companyToSave.id ? companyToSave : c));
+      console.log('Atualizando empresa:', companyToSave);
+    } else { // Criando
+      const newCompany = { ...companyToSave, id: Math.max(0, ...companies.map(c => c.id)) + 1 };
+      setCompanies([...companies, newCompany]);
+      console.log('Criando nova empresa:', newCompany);
+    }
+    handleCloseModal();
+  };
   const handleDeactivateCompany = (companyId: number) => {
     if (window.confirm('Tem certeza que deseja desativar esta empresa? Esta ação não poderá ser desfeita.')) {
       // ! Substituir com chamada real à API para desativar a empresa (PATCH/PUT)
@@ -59,17 +106,25 @@ export function MyCompaniesPage() {
 
   return (
     <>
-      <LoginHeader />
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
           <div className="container mx-auto px-6 py-4">
-            {/* <Link to="" className="text-sm font-semibold text-blue-600 hover:underline">← Voltar para o Dashboard</Link> */}
+            <Link to="/" className="text-sm font-semibold text-blue-600 hover:underline">← Voltar ao Início</Link>
             <h1 className="text-3xl font-bold text-gray-800 mt-2">Minhas Empresas</h1>
             <p className="text-gray-600 mt-1">Visualize e gerencie as indústrias associadas à sua conta.</p>
           </div>
         </header>
 
         <main className="container mx-auto px-6 py-8">
+          <div className="flex justify-end mb-6">
+            <button
+              onClick={() => handleOpenModal(null)}
+              className="bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors flex items-center"
+            >
+              <PlusCircle size={20} className="mr-2" />
+              Cadastrar Nova Empresa
+            </button>
+          </div>
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
             {isLoading && <p className="text-center text-gray-600">Carregando empresas...</p>}
             {error && <p className="text-center text-red-500">{error}</p>}
@@ -87,7 +142,7 @@ export function MyCompaniesPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {companies.map((company) => ( // Filtra para não exibir empresas desativadas, se necessário
+                      {companies.map((company) => ( 
                         <tr key={company.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{company.razao_social}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.nome_fantasia || '--'}</td>
@@ -101,7 +156,7 @@ export function MyCompaniesPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <Link to={`/companies/${company.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Ver Detalhes</Link>
+                            <button onClick={() => handleOpenModal(company)} className="text-blue-600 hover:text-blue-900 mr-4">Editar</button>
                             {company.status === 'Ativa' && (
                               <button onClick={() => handleDeactivateCompany(company.id)} className="text-red-600 hover:text-red-900">Desativar</button>
                             )}
@@ -123,6 +178,13 @@ export function MyCompaniesPage() {
           </div>
         </main>
       </div>
+      {isModalOpen && (
+        <CompanyModal
+          company={editingCompany}
+          onClose={handleCloseModal}
+          onSave={handleSaveCompany}
+        />
+      )}
       <Footer />
     </>
   );
