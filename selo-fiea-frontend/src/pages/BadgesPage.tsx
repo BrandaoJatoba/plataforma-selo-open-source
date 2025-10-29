@@ -4,6 +4,7 @@ import { PlusCircle, ShieldAlert } from 'lucide-react';
 import { BadgesTable } from "../components/BadgesTable"; 
 import { DynamicForm } from "../components/DynamicForm";
 import badgeIcon from '/badge.jpg';
+import { MOCKED_CRITERIA } from "./CriteriaPage";
 
 // Tipos para os dados (TypeScript)
 export interface Badge {
@@ -114,6 +115,7 @@ export function BadgesPage() {
        {isModalOpen && (
           <DynamicForm
             badge={editingBadge}
+            allCriteria={MOCKED_CRITERIA}
             onClose={handleCloseModal}
             onSave={handleSaveBadge}
           />

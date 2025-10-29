@@ -16,7 +16,7 @@ export interface Criterion {
 const PILARES: Pilar[] = ['Qualidade', 'Sustentabilidade', 'Inovação Tecnológica'];
 
 // Dados mocados para simular a API
-const MOCKED_CRITERIA: Criterion[] = [
+export const MOCKED_CRITERIA: Criterion[] = [
   { id: 1, pilar: 'Qualidade', descricao: 'A empresa possui certificação ISO 9001?', peso: 5 },
   { id: 2, pilar: 'Qualidade', descricao: 'Os processos de produção são documentados e seguidos rigorosamente?', peso: 4 },
   { id: 3, pilar: 'Sustentabilidade', descricao: 'A empresa possui um programa de reciclagem de resíduos?', peso: 5 },
