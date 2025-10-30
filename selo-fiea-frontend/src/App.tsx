@@ -9,6 +9,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ProfilesPage } from './pages/ProfilesPage';
 import { BadgesPage } from './pages/BadgesPage';
 import { CriteriaPage } from './pages/CriteriaPage';
+import { MyCompaniesPage } from './pages/MyCompaniesPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/admin-register" element={<AdminRegistrationPage />} />
       <Route path="register" element={<ManagerRegistrationPage />} />
+      <Route path="/empresas" element={<MyCompaniesPage />} />
 
       {/* Rotas Protegidas (após login) */}
       <Route path="/dashboard" element={<DashboardPage />} />
