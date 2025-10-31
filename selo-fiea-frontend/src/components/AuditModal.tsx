@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/AuditModal.tsx
+
 import { useState, useEffect } from 'react';
 import type { Audit, AuditTopic, User } from '../pages/AuditsPage';
 import { X, UploadCloud, Plus, Trash2 } from 'lucide-react';

@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/ResetPasswordPage.tsx
+
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { LoginHeader } from "../components/LoginHeader";

@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/LoginPage.tsx
+
 import { Link } from "react-router-dom"; 
 import { AuthForm } from "../components/AuthForm";
 import { Footer } from "../components/Footer";

@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/HeroSection.tsx
+
 import { Link } from "react-router-dom"; 
 
 export function HeroSection() {

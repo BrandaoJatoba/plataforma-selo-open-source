@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/AuthForm.tsx
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 

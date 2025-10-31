@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/AuthForm.test.tsx
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AuthForm } from '../components/AuthForm';
 

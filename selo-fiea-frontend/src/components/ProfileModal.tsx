@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/ProfileModal.tsx
+
 import { useState, useEffect } from "react";
 import type { Profile } from '../pages/ProfilesPage';
 import type { Permission } from '../pages/ProfilesPage';

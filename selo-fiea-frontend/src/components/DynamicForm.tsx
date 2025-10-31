@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/DynamicForm.tsx
+
 import { useState, useEffect } from 'react';
 import type { Badge } from '../pages/BadgesPage';
 import { X, UploadCloud } from 'lucide-react';

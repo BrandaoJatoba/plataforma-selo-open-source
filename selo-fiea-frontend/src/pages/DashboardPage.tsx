@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/DashboardPage.tsx
+
 import { Link } from "react-router-dom";
 import { Shield, Users, FileText, Award } from 'lucide-react';
 

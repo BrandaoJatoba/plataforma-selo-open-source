@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/components/ProfilesTable.tsx
+
 import { Edit, Trash2 } from 'lucide-react';
 import type { Profile } from '../pages/ProfilesPage';
 

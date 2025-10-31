@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/BadgesPage.tsx
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PlusCircle, ShieldAlert } from 'lucide-react';
