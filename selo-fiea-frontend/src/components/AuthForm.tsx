@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export function AuthForm() {
   const navigate = useNavigate();
-  
+  
   
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -19,12 +19,20 @@ export function AuthForm() {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const testEmail = 'gestor@selofiea.com.br';
-    const testPassword = 'Password@123';
+    // Usuário Admin (Existente)
+    const testAdminEmail = 'gestor@selofiea.com.br';
+    const testAdminPassword = 'Password@123';
 
-    if (loginEmail === testEmail && loginPassword === testPassword) {
-      console.log('Login de teste bem-sucedido!');
-      navigate('/dashboard');
+    // NOVO: Usuário Indústria (Simulado)
+    const testIndustryEmail = 'industria@empresa.com.br';
+    const testIndustryPassword = 'Password@123';
+
+    if (loginEmail === testAdminEmail && loginPassword === testAdminPassword) {
+      console.log('Login de teste (Admin) bem-sucedido!');
+      navigate('/dashboard'); // Rota do Admin
+    } else if (loginEmail === testIndustryEmail && loginPassword === testIndustryPassword) {
+      console.log('Login de teste (Indústria) bem-sucedido!');
+      navigate('/industry/dashboard'); // NOVA Rota da Indústria
     } else {
       console.log('Credenciais de teste inválidas.');
       setErrorMessage("E-mail ou senha inválidos. Verifique seus dados e tente novamente.");
@@ -72,7 +80,7 @@ export function AuthForm() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
                 placeholder="••••••••" 
                 required
-                 disabled={isLoading}
+                 disabled={isLoading}
               />
             </div>
             <div className="flex items-center justify-end mb-6">
@@ -82,7 +90,7 @@ export function AuthForm() {
             </div>
             <div>
               <button type="submit" className="w-full bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-800 transition-all shadow-sm disabled:bg-blue-400" disabled={isLoading}>
-                {isLoading ? 'Entrando...' : 'Entrar'}
+             {isLoading ? 'Entrando...' : 'Entrar'}
               </button>
             </div>
             
