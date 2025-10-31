@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/AdminRegistrationPage.tsx
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LoginHeader } from "../components/LoginHeader";

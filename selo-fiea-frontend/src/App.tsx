@@ -1,5 +1,7 @@
+// selo-fiea-frontend/src/App.tsx
+
 import { Routes, Route } from 'react-router-dom';
-import  LandingPage  from './pages/LandingPage';
+import  LandingPage  from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -10,6 +12,8 @@ import { ProfilesPage } from './pages/ProfilesPage';
 import { BadgesPage } from './pages/BadgesPage';
 import { CriteriaPage } from './pages/CriteriaPage';
 import { MyCompaniesPage } from './pages/MyCompaniesPage';
+import { AuditsPage } from './pages/AuditsPage';
+
 
 function App() {
   return (
@@ -28,6 +32,7 @@ function App() {
       <Route path="/dashboard/perfis" element={<ProfilesPage />} />
       <Route path="/dashboard/selos" element={<BadgesPage />} />
       <Route path="/dashboard/criterios" element={<CriteriaPage />} />
+      <Route path="/dashboard/auditorias" element={<AuditsPage />} />
     </Routes>
   )
 }

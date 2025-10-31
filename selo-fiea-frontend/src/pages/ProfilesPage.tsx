@@ -1,3 +1,5 @@
+// selo-fiea-frontend/src/pages/ProfilesPage.tsx
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PlusCircle, ShieldAlert } from 'lucide-react';
