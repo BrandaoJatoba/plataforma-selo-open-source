@@ -10,8 +10,8 @@ import { ManagerRegistrationPage } from './pages/ManagerRegistrationPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProfilesPage } from './pages/ProfilesPage';
 import { BadgesPage } from './pages/BadgesPage';
+import { CriteriaPage } from './pages/CriteriaPage';
 import { AuditsPage } from './pages/AuditsPage';
-// NOVOS IMPORTS
 import { IndustryDashboardPage } from './pages/IndustryDashboardPage';
 import { SelfAssessmentPage } from './pages/SelfAssessmentPage';
 import { MyCompaniesPage } from './pages/MyCompaniesPage';
@@ -32,6 +32,7 @@ function App() {
       <Route path="/dashboard/perfis" element={<ProfilesPage />} />
       <Route path="/dashboard/selos" element={<BadgesPage />} />
       <Route path="/dashboard/auditorias" element={<AuditsPage />} />
+      <Route path="/dashboard/criterios" element={<CriteriaPage />} />
 
       {/* NOVAS Rotas Protegidas (Indústria) */}
       <Route path="/industry/dashboard" element={<IndustryDashboardPage />} />
