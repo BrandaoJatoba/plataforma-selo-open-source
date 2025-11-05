@@ -14,6 +14,7 @@ import { AuditsPage } from './pages/AuditsPage';
 // NOVOS IMPORTS
 import { IndustryDashboardPage } from './pages/IndustryDashboardPage';
 import { SelfAssessmentPage } from './pages/SelfAssessmentPage';
+import { MyCompaniesPage } from './pages/MyCompaniesPage';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
       {/* NOVAS Rotas Protegidas (Indústria) */}
       <Route path="/industry/dashboard" element={<IndustryDashboardPage />} />
       <Route path="/industry/assessment/:badgeId" element={<SelfAssessmentPage />} />
+      <Route path="/industry/dashboard/empresas" element={<MyCompaniesPage />} />
     </Routes>
   )
 }
