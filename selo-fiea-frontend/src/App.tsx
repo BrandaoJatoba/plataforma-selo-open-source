@@ -15,6 +15,7 @@ import { AuditsPage } from './pages/AuditsPage';
 import { IndustryDashboardPage } from './pages/IndustryDashboardPage';
 import { SelfAssessmentPage } from './pages/SelfAssessmentPage';
 import { MyCompaniesPage } from './pages/MyCompaniesPage';
+import { DigitalBadgesPage } from './pages/DigitalBadgesPage';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
       <Route path="/industry/dashboard" element={<IndustryDashboardPage />} />
       <Route path="/industry/assessment/:badgeId" element={<SelfAssessmentPage />} />
       <Route path="/industry/dashboard/empresas" element={<MyCompaniesPage />} />
+      <Route path="/industry/dashboard/selos" element={<DigitalBadgesPage />} />
     </Routes>
   )
 }
