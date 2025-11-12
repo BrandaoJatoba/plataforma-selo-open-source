@@ -1,6 +1,6 @@
 /*
  * =========================================
- * NOTIFICATION SYSTEM - REFINED STYLES
+ * NOTIFICATION SYSTEM - REFINED STYLES (com FAB e Variantes)
  * =========================================
  */
 
@@ -8,10 +8,13 @@
 :root {
   --notification-color-admin: #1976D2;
   --notification-color-admin-hover: #e3f2fd;
+  --notification-color-admin-darker: #1565C0; /* Cor para hover do FAB */
+
   --notification-color-industry: #00796B;
   --notification-color-industry-hover: #e0f2f1;
-  --notification-color-public: #333;
-  --notification-color-public-hover: #f1f1f1;
+  --notification-color-industry-darker: #00695C; /* Cor para hover do FAB */
+  
+  /* Cores públicas removidas das notificações */
   
   --notification-color-success: #28a745;
   --notification-color-error: #dc3545;
@@ -25,71 +28,64 @@
   --notification-header-bg: #fafafa;
 }
 
-/* --- Área do Header (Onde o Sino Fica) --- */
-.notification-header-area {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 32px;
-  background-color: var(--notification-bg-base);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid var(--notification-border-color);
-  position: relative;
-}
+/* --- Área do Header (REMOVIDA) --- */
+/* .notification-header-area foi removido */
+
 
 /* * --- Ícone do Sino (Bell) --- 
- * Refinado para melhor alinhamento e feedback
+ * MODIFICADO para Botão de Ação Flutuante (FAB)
+ * (Cor de fundo removida da classe base)
  */
 .notification-bell {
-  position: relative;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #4a4a4a;
-  padding: 8px;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  
+  /* Cor de fundo e 'color' movidos para as variantes */
+  
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease-out, background-color 0.2s, box-shadow 0.2s;
 }
 
 .notification-bell:hover {
-  color: #000;
-  background-color: var(--notification-color-public-hover);
+  transform: scale(1.05); /* Efeito hover geral */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* Sombra mais forte no hover */
 }
 
 .notification-bell svg {
   width: 24px;
   height: 24px;
+  color: white; /* Ícone sempre branco */
 }
 
-/* * --- Contagem (Badge) --- 
- * Reposicionada para um visual mais "colado"
- */
+/* * --- Contagem (Badge) --- */
 .notification-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 4px;
+  right: 4px;
   background-color: var(--notification-color-badge);
   color: white;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* A borda deve ser da cor do fundo onde o sino está */
-  border: 2px solid var(--notification-bg-base); 
-  /* Animação de Pop */
+  border: 2px solid white; 
   animation: newNotificationPop 0.3s ease-out;
 }
 
-/* Adicione esta animação! */
 @keyframes newNotificationPop {
   0% { transform: scale(0.5); opacity: 0; }
   80% { transform: scale(1.1); opacity: 1; }
@@ -98,12 +94,12 @@
 
 
 /* * --- A Caixa de Notificações (Inbox) --- 
- * Sombra e posicionamento refinados
+ * Posicionada acima do FAB
  */
 .notification-inbox {
-  position: absolute;
-  top: 68px; /* Mais espaço do header */
-  right: 32px;
+  position: fixed; 
+  bottom: calc(2rem + 56px + 1rem); /* 104px (32 + 56 + 16) */
+  right: 2rem;     
   width: 380px;
   max-height: 450px;
   background: var(--notification-bg-base);
@@ -114,6 +110,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform-origin: bottom right; 
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
 /* --- Header da Inbox --- */
@@ -156,9 +154,7 @@
   overflow-y: auto;
 }
 
-/* * --- Estado Vazio (Empty State) --- 
- * GRANDE MELHORIA: Adiciona um ícone e centraliza.
- */
+/* --- Estado Vazio (Empty State) --- */
 .inbox-empty {
   display: flex;
   flex-direction: column;
@@ -171,16 +167,13 @@
 }
 
 .inbox-empty::before {
-  /* Ícone SVG de "check" (Tudo em ordem) */
   content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23b0b0b0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check-circle'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'></path><polyline points='22 4 12 14.01 9 11.01'></polyline></svg>");
   display: block;
   margin-bottom: 16px;
   opacity: 0.7;
 }
 
-/* * --- Item de Notificação Individual --- 
- * MELHORIA: Substitui o ponto por ícones SVG
- */
+/* --- Item de Notificação Individual --- */
 .notification-item {
   padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
@@ -198,7 +191,6 @@
   background-color: var(--notification-bg-hover);
 }
 
-/* O pseudo-elemento agora é o ícone */
 .notification-item::before {
   content: '';
   display: block;
@@ -232,7 +224,7 @@
 .notification-close-btn {
   background: none;
   border: none;
-  font-size: 20px; /* Se for um '×', isso é o tamanho */
+  font-size: 20px;
   font-weight: bold;
   color: #aaa;
   cursor: pointer;
@@ -249,15 +241,26 @@
   color: #333;
   background-color: #e9e9e9;
 }
+/* Botão desativado para Mocks */
+.notification-close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+  color: #aaa;
+}
 
 
-/* * --- VARIAÇÕES DE PERFIL --- 
- * Refinadas para consistência
- */
+/* * --- VARIAÇÕES DE PERFIL (FAB e INBOX) --- */
 
 /* Admin */
-.notification-bell.admin { color: var(--notification-color-admin); }
-.notification-bell.admin:hover { background-color: var(--notification-color-admin-hover); }
+.notification-bell.admin {
+  background-color: var(--notification-color-admin);
+  color: white;
+}
+.notification-bell.admin:hover {
+  background-color: var(--notification-color-admin-darker);
+}
+
 .notification-inbox.admin .inbox-header { 
   background-color: var(--notification-color-admin); 
   border-color: var(--notification-color-admin);
@@ -267,8 +270,14 @@
 .notification-inbox.admin .inbox-clear-btn:hover { opacity: 1; background-color: rgba(255,255,255,0.2); }
 
 /* Industry */
-.notification-bell.industry { color: var(--notification-color-industry); }
-.notification-bell.industry:hover { background-color: var(--notification-color-industry-hover); }
+.notification-bell.industry {
+  background-color: var(--notification-color-industry);
+  color: white;
+}
+.notification-bell.industry:hover {
+  background-color: var(--notification-color-industry-darker);
+}
+
 .notification-inbox.industry .inbox-header { 
   background-color: var(--notification-color-industry);
   border-color: var(--notification-color-industry);
@@ -277,10 +286,3 @@
 .notification-inbox.industry .inbox-clear-btn { color: #fff; opacity: 0.8; }
 .notification-inbox.industry .inbox-clear-btn:hover { opacity: 1; background-color: rgba(255,255,255,0.2); }
 
-/* Public */
-.notification-bell.public { color: var(--notification-color-public); }
-.notification-bell.public:hover { background-color: var(--notification-color-public-hover); }
-.notification-inbox.public .inbox-header { background-color: var(--notification-header-bg); }
-.notification-inbox.public .inbox-header h3 { color: #333; }
-.notification-inbox.public .inbox-clear-btn { color: #007bff; }
-.notification-inbox.public .inbox-clear-btn:hover { background-color: #e9e9e9; }
