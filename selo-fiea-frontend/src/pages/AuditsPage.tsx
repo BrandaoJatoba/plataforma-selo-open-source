@@ -18,6 +18,13 @@ export interface User {
   // se for preciso for, adicionar outros campos de usuário que a API /users retorna
 }
 
+// Interface para as evidências, importada ou redefinida para consistência
+export interface Evidence {
+  id: string;
+  fileName: string;
+  url: string; // O caminho para o download
+}
+
 // Tópicos de Auditoria
 export interface AuditTopic {
   id: string; // Pode ser string (temp) ou number (da API)
@@ -27,6 +34,7 @@ export interface AuditTopic {
   // Resposta da Empresa (Autoavaliação)
   companySelfScore: 0 | 1 | 2 | 3 | 4; 
   companyParecer: string;
+  evidences: Evidence[]; // Evidências enviadas pela empresa
 
   // Resposta do Auditor
   scoreLevel: 0 | 1 | 2 | 3 | 4; // Nota do auditor
@@ -155,7 +163,21 @@ export function AuditsPage() {
         { parecerFinal: updatedAudit.parecerFinal }
       );
       
-      addNotification('Parecer salvo com sucesso!', 'success');
+      // Se a auditoria foi marcada como 'conforme', emite o selo
+      if (updatedAudit.status === 'conforme') {
+        try {
+          await apiClient.post('/selos-emitidos/emitir', {
+            auditoriaId: updatedAudit.id,
+          });
+          addNotification('Auditoria concluída e selo emitido com sucesso!', 'success');
+        } catch (emissionError: any) {
+          // Notifica sobre o parecer salvo, mas avisa sobre o erro na emissão
+          addNotification(`Parecer salvo, mas falha ao emitir selo: ${emissionError.message}`, 'error');
+        }
+      } else {
+        addNotification('Parecer salvo com sucesso!', 'success');
+      }
+
       handleCloseParecerModal();
       fetchAudits(); 
       
