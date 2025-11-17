@@ -1,6 +1,6 @@
 // selo-fiea-frontend/src/services/apiClient.ts
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Obtém o token de autenticação salvo no localStorage.

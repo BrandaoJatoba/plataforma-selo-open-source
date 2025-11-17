@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Award, Building, Calendar, ShieldCheck, ShieldAlert } from 'lucide-react';
-import type { Badge } from "./BadgesPage";
+import { Award, Building, Calendar, ShieldCheck, ShieldAlert, Download, Copy, QrCode } from 'lucide-react';
+import type { Badge } from "./BadgesPage"; // Assumindo que Badge vem de BadgesPage
 import type { Company } from "../types/company";
-import { apiClient } from "../services/apiClient"; 
+import { apiClient, BASE_URL } from "../services/apiClient"; 
 import { useNotifications } from "../hooks/useNotifications";
 
 // --- Tipos de Dados ---
@@ -16,6 +16,7 @@ interface DigitalBadge {
   company: Company; // Dados da empresa
   issueDate: string; // Data de emissão (string ISO)
   verificationUrl: string; // URL para verificação pública
+  imageUrl: string; // URL da imagem do selo para download
   // adicionamos 'expiryDate' se a API já calcular
 }
 
@@ -73,11 +74,11 @@ export function DigitalBadgesPage() {
     }
   };
 
-  const handleDownloadQr = (issued: DigitalBadge) => {
-    // Lógica para gerar e baixar o QR Code.
-    // Por enquanto, apenas um alerta para simular a ação.
-    alert(`Simulando download do QR Code para o selo da empresa ${issued.company.nomeFantasia}.
-URL: ${window.location.origin}${issued.verificationUrl}`);
+  const handleViewCertificate = (issuedId: string) => {
+    // Constrói a URL completa para o endpoint do certificado
+    const certificateUrl = `${BASE_URL}/selos-emitidos/${issuedId}/certificado`;
+    // Abre o certificado em uma nova aba
+    window.open(certificateUrl, '_blank');
   };
 
   return (
@@ -94,22 +95,15 @@ URL: ${window.location.origin}${issued.verificationUrl}`);
         {isLoading ? (
           <p className="text-center text-gray-500 py-12">Carregando selos...</p>
         ) : issuedBadges.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
             {issuedBadges.map(issued => {
-              const issueDate = new Date(issued.issueDate);
               const expiryDate = calculateExpiryDate(issued.issueDate, issued.badge.validadeMeses);
-              const isExpired = new Date() > expiryDate;
+              const now = new Date();
+              const isValid = now >= new Date(issued.issueDate) && now <= expiryDate;
+              const fullVerificationUrl = `${window.location.origin}${issued.verificationUrl}`;
 
               return (
-                <div 
-                  key={issued.id} 
-                  className={`bg-white p-6 rounded-lg shadow-md border ${isExpired ? 'border-red-200 opacity-70' : 'border-gray-100'} flex flex-col items-center text-center hover:shadow-xl transition-shadow`}
-                >
-                  {isExpired && (
-                    <span className="flex items-center gap-1.5 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-3">
-                      <ShieldAlert size={14} /> Expirado
-                    </span>
-                  )}
+                <div key={issued.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col items-center text-center hover:shadow-xl transition-shadow">
                   <img src={issued.badge.icon} alt={issued.badge.name} className="h-24 w-24 rounded-full mb-4 border-4 border-gray-200" />
                   
                   <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -118,28 +112,70 @@ URL: ${window.location.origin}${issued.verificationUrl}`);
                   </h2>
                   <p className="text-lg font-semibold text-gray-700 mt-2 mb-4 flex items-center gap-2">
                     <Building size={18} className="text-gray-500" />
-                    {issued.company.nomeFantasia}
+                    {issued.company.nomeFantasia} 
                   </p>
 
                   <div className="text-sm text-gray-600 space-y-2 w-full border-t pt-4">
                     <div className="flex justify-between">
                       <span className="font-semibold flex items-center gap-1.5"><Calendar size={14} /> Data de Emissão:</span>
-                      <span>{issueDate.toLocaleDateString('pt-BR')}</span>
+                      <span>{new Date(issued.issueDate).toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <div className={`flex justify-between ${isExpired ? 'text-red-600 font-bold' : ''}`}>
+                    <div className="flex justify-between">
                       <span className="font-semibold flex items-center gap-1.5"><ShieldCheck size={14} /> Data de Validade:</span>
                       <span>{expiryDate.toLocaleDateString('pt-BR')}</span>
                     </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold flex items-center gap-1.5">Status:</span>
+                      <span
+                        className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                          isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {isValid ? 'Ativo' : 'Expirado'}
+                      </span>
+                    </div>
                   </div>
-                  {/* Link para validação pública */}
-                  <Link 
-                    to={`/verificacao/${issued.id}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="mt-4 text-sm font-medium text-blue-600 hover:underline"
-                  >
-                    Verificar autenticidade
-                  </Link>
+
+                  {isValid ? (
+                    <div className="mt-5 w-full space-y-4">
+                      <div className="bg-gray-50 rounded-lg p-3 border">
+                        <h4 className="text-sm font-semibold mb-2">Divulgação</h4>
+
+                        <div className="flex flex-wrap justify-center gap-2 mb-2">
+                          <a
+                            className="text-xs rounded border px-3 py-1 hover:bg-gray-100 flex items-center gap-1"
+                            href={issued.imageUrl}
+                            download
+                          >
+                            <Download size={12} /> Baixar Selo
+                          </a>
+                          <button 
+                            className="text-xs rounded border px-3 py-1 hover:bg-gray-100 flex items-center gap-1"
+                            onClick={() => handleViewCertificate(issued.id)}
+                          >
+                            <QrCode size={12} /> Baixar Certificado
+                          </button>
+                        </div>
+
+                        <h4 className="text-sm font-semibold mb-2">Verificação</h4>
+                        <div className="flex items-center gap-2">
+                          <input
+                            className="flex-1 text-xs px-2 py-1 rounded border bg-white truncate"
+                            value={fullVerificationUrl}
+                            readOnly
+                          />
+                          <button
+                            className="text-xs rounded border px-2 py-1 hover:bg-gray-100 flex items-center gap-1"
+                            onClick={() => copy(fullVerificationUrl)}
+                          >
+                            <Copy size={12} /> Copiar
+                          </button>
+                        </div>
+                        <p className="mt-2 text-xs text-gray-500">
+                          Este é o link oficial de verificação do seu selo.
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
