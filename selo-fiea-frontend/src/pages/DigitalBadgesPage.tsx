@@ -62,12 +62,30 @@ export function DigitalBadgesPage() {
     return expiry;
   };
 
+  const copy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('Link copiado para a área de transferência!');
+    } catch (err) {
+      console.error('Falha ao copiar o link: ', err);
+      alert('Falha ao copiar o link.');
+    }
+  };
+
+  const handleDownloadQr = (issued: DigitalBadge) => {
+    // Lógica para gerar e baixar o QR Code.
+    // Por enquanto, apenas um alerta para simular a ação.
+    alert(`Simulando download do QR Code para o selo da empresa ${issued.company.nome_fantasia}.
+URL: ${window.location.origin}${issued.verificationUrl}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
           <div className="container mx-auto px-6 py-4">
             <Link to="/industry/dashboard/" className="text-sm font-semibold text-blue-600 hover:underline">← Voltar para o Portal</Link>
             <h1 className="text-3xl font-bold text-gray-800 mt-2">Meus Selos</h1>
+            <p className="text-gray-600 mt-1">Visualize os selos de reconhecimento FIEA conquistados.</p>
           </div>
         </header>
 
