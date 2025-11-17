@@ -1,8 +1,9 @@
 // src/components/ParecerModal.tsx
 
 import { useState, useEffect, type FormEvent } from 'react';
-import type { Audit, AuditTopic } from '../pages/AuditsPage';
-import { X, Star } from 'lucide-react';
+import type { Audit, AuditTopic, Evidence } from '../pages/AuditsPage';
+import { X, Star, Download, Paperclip } from 'lucide-react';
+import { BASE_URL } from '../services/apiClient';
 
 interface ParecerModalProps {
   audit: Audit;
@@ -46,7 +47,10 @@ export function ParecerModal({ audit, onClose, onSave }: ParecerModalProps) {
       parecerFinal: parecerFinal // Adiciona o parecer final ao salvar
     });
   };
-  
+
+  const handleDownloadEvidence = (evidence: Evidence) => {
+    window.open(`${BASE_URL}/evidences/${evidence.id}/download`, '_blank', 'noopener,noreferrer');
+  };
   // Calcula a pontuação total (baseada na nota do AUDITOR)
   const totalScore = topics.reduce((acc, topic) => acc + topic.scoreLevel, 0);
   const maxScore = topics.length * 4; // Nível 4 é o máximo por tópico
@@ -106,6 +110,30 @@ export function ParecerModal({ audit, onClose, onSave }: ParecerModalProps) {
                           </div>
                         </div>
                       </div>
+
+                      {/* Bloco de Evidências da Empresa - NOVO */}
+                      {topic.evidences && topic.evidences.length > 0 && (
+                        <div className="border border-gray-200 bg-white p-3 rounded-md mt-3">
+                          <h5 className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+                            <Paperclip size={16} />
+                            Evidências Anexadas pela Empresa
+                          </h5>
+                          <ul className="space-y-2">
+                            {topic.evidences.map(evidence => (
+                              <li key={evidence.id} className="flex items-center justify-between text-sm">
+                                <span className="truncate" title={evidence.fileName}>{evidence.fileName}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadEvidence(evidence)}
+                                  className="text-blue-600 hover:underline font-semibold flex items-center gap-1 ml-4"
+                                >
+                                  <Download size={14} /> Baixar
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Campos de Score e Parecer (Auditor) - ATUALIZADO */}

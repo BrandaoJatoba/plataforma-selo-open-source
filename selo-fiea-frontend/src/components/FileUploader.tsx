@@ -1,10 +1,12 @@
 // src/components/FileUploader.tsx
 import { UploadCloud, X, FileText } from 'lucide-react';
 import React from 'react';
+import type { Evidence } from '../pages/SelfAssessmentPage';
 
 interface FileUploaderProps {
-  selectedFiles: File[];
-  onFilesChange: (files: File[]) => void;
+  evidences: Evidence[];
+  onFilesChange: (newFiles: File[]) => void;
+  onFileDelete: (evidenceId: string) => void;
   acceptedTypes?: string; // Ex: ".pdf,.docx,.png"
   maxFileSizeMB?: number; // Tamanho máximo em Megabytes
   label?: string;
@@ -15,8 +17,9 @@ const MAX_SIZE_MB = 10; // Padrão de 10MB se não for fornecido
 const ALLOWED_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"; // Padrão
 
 export function FileUploader({
-  selectedFiles,
+  evidences,
   onFilesChange,
+  onFileDelete,
   acceptedTypes = ALLOWED_TYPES,
   maxFileSizeMB = MAX_SIZE_MB,
   label = "Clique para enviar arquivos",
@@ -30,7 +33,6 @@ export function FileUploader({
     if (!files) return;
 
     const newFiles: File[] = Array.from(files);
-    let validFiles: File[] = [...selectedFiles];
     let errors: string[] = [];
 
     newFiles.forEach(file => {
@@ -47,27 +49,19 @@ export function FileUploader({
          return;
       }
       
-      // Validação de duplicidade (nome)
-      if (selectedFiles.some(f => f.name === file.name)) {
+      // Validação de duplicidade (nome do arquivo já na lista de evidências)
+      if (evidences.some(e => e.fileName === file.name)) {
          errors.push(`O arquivo "${file.name}" já foi adicionado.`);
          return;
       }
-
-      validFiles.push(file);
     });
 
     if (errors.length > 0) {
       alert(errors.join("\n"));
     }
 
-    onFilesChange(validFiles);
-    
-    // Limpa o input para permitir selecionar o mesmo arquivo após remoção
-    e.target.value = ''; 
-  };
-
-  const handleRemoveFile = (fileName: string) => {
-    onFilesChange(selectedFiles.filter(file => file.name !== fileName));
+    // Envia apenas os arquivos que não geraram erro para a página pai
+    onFilesChange(newFiles.filter(f => !errors.some(e => e.includes(f.name))));
   };
 
   return (
@@ -91,23 +85,23 @@ export function FileUploader({
       />
 
       {/* Lista de Arquivos Selecionados */}
-      {selectedFiles.length > 0 && (
+      {evidences.length > 0 && (
         <div className="mt-4 space-y-2">
-           <h4 className="text-sm font-medium text-gray-700">Arquivos Selecionados:</h4>
+           <h4 className="text-sm font-medium text-gray-700">Evidências Anexadas:</h4>
           <ul className="space-y-2 max-h-40 overflow-y-auto pr-2">
-            {selectedFiles.map((file) => (
+            {evidences.map((evidence) => (
               <li 
-                key={file.name} 
+                key={evidence.id} 
                 className="flex items-center justify-between p-2 bg-gray-100 rounded-md border border-gray-200"
               >
                 <div className="flex items-center space-x-2 overflow-hidden">
                    <FileText size={18} className="text-gray-500 flex-shrink-0" />
-                   <span className="text-sm text-gray-800 truncate" title={file.name}>{file.name}</span>
-                   <span className="text-xs text-gray-500 flex-shrink-0">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                   <span className="text-sm text-gray-800 truncate" title={evidence.fileName}>{evidence.fileName}</span>
+                   {/* O tamanho do arquivo não está disponível no objeto Evidence, então removemos a exibição */}
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleRemoveFile(file.name)}
+                  onClick={() => onFileDelete(evidence.id)}
                   className="text-red-500 hover:text-red-700 ml-2 flex-shrink-0"
                 >
                   <X size={16} />

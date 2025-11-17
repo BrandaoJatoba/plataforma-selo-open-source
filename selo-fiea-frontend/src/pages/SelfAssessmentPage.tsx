@@ -6,16 +6,26 @@ import type { Badge } from './BadgesPage';
 import badgeIcon from '/badge.jpg';
 import { ChevronLeft, ChevronRight, Save, Send, Star } from 'lucide-react';
 // Importa o *tipo* Criterion, mas não mais os dados
-import type { Criterion } from './CriteriaPage'; 
+import type { Criterion } from './CriteriaPage';
 import { FileUploader } from '../components/FileUploader';
+import { apiClient } from '../services/apiClient';
+import { useNotifications } from '../hooks/useNotifications';
 
 // --- Interfaces ---
 
+// Metadados de uma evidência salva na API
+export interface Evidence {
+  id: string;
+  fileName: string;
+  url: string;
+}
+
 // A resposta para um critério específico
 interface AssessmentAnswer {
-  criterion: string;
+  criterionId: number; // Usaremos o ID do critério
+  criterionText: string;
   responseText: string;
-  documents: File[];
+  evidences: Evidence[]; // Armazena metadados das evidências, não o File
 }
 
 // O objeto principal da autoavaliação
@@ -25,7 +35,6 @@ interface SelfAssessment {
   status: 'draft' | 'submitted';
   answers: AssessmentAnswer[];
 }
-
 // --- DADOS MOCADOS (COM NOVA PONTUAÇÃO LOCAL) ---
 
 // Definição local dos critérios com a pontuação de 9 pontos totais
@@ -34,7 +43,7 @@ const MOCKED_CRITERIA: Criterion[] = [
   { id: 2, pilar: 'Qualidade', descricao: 'Os processos de produção são documentados e seguidos rigorosamente?', peso: 2 },
   { id: 3, pilar: 'Sustentabilidade', descricao: 'A empresa possui um programa de reciclagem de resíduos?', peso: 2 },
   { id: 4, pilar: 'Inovação Tecnológica', descricao: 'A empresa investe em novas tecnologias para otimização de processos?', peso: 3 },
-]; // Total: 2 + 2 + 2 + 3 = 9 pontos
+];
 
 // (Dados ajustados para usar os critérios de CriteriaPage.tsx)
 const MOCKED_BADGES: Badge[] = [
@@ -68,61 +77,45 @@ export function SelfAssessmentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   // Estado para buscar os pesos (usando a constante local)
+  const { addNotification } = useNotifications();
   const [allCriteria] = useState(MOCKED_CRITERIA);
 
   // Carrega o selo e o rascunho salvo (se houver)
   useEffect(() => {
-    setIsLoading(true);
-    const numericId = Number(badgeId);
-    // ! Simula API: Busca o selo
-    const foundBadge = MOCKED_BADGES.find(b => b.id === numericId);
+    const loadAssessment = async () => {
+      setIsLoading(true);
+      const numericId = Number(badgeId);
+      // ! Simula API: Busca o selo
+      const foundBadge = MOCKED_BADGES.find(b => b.id === numericId);
 
-    if (!foundBadge) {
-      // Lidar com selo não encontrado
-      navigate('/industry/dashboard'); // Volta pro dashboard
-      return;
-    }
-    setBadge(foundBadge);
+      if (!foundBadge) {
+        navigate('/industry/dashboard');
+        return;
+      }
+      setBadge(foundBadge);
 
-    // ! Simula API/Storage: Busca rascunho salvo no localStorage
-    const draftKey = `assessment_draft_${numericId}`;
-    const savedDraftJson = localStorage.getItem(draftKey);
-    
-    let savedDraft: SelfAssessment | null = null;
-    if (savedDraftJson) {
-        try {
-            // Para um rascunho real, precisaríamos de uma lógica mais complexa
-            // para armazenar metadados de arquivos (nome, tipo) e talvez
-            // exigi-los novamente no envio.
-            // Por simplicidade, vamos assumir que os arquivos são perdidos ao recarregar um rascunho.
-            savedDraft = JSON.parse(savedDraftJson);
-            // Limpa os arquivos do rascunho salvo, já que não podemos recriá-los
-            if (savedDraft) {
-                savedDraft.answers.forEach(a => a.documents = []); 
-            }
-        } catch (e) {
-            console.error("Falha ao carregar rascunho:", e);
-            localStorage.removeItem(draftKey); // Limpa rascunho corrompido
+      try {
+        // 1. Tenta buscar um rascunho existente para este selo
+        // A API precisaria de um filtro por badgeId e userId
+        const existingAssessments: SelfAssessment[] = await apiClient.get(`/self-assessments?badgeId=${numericId}`);
+        
+        if (existingAssessments.length > 0) {
+          setAssessment(existingAssessments[0]);
+        } else {
+          // 2. Se não existir, cria um novo
+          const newAssessment: SelfAssessment = await apiClient.post('/self-assessments', { badgeId: numericId });
+          // A API deve retornar a estrutura completa da nova avaliação
+          setAssessment(newAssessment);
         }
-    }
+      } catch (error: any) {
+        addNotification(`Erro ao carregar autoavaliação: ${error.message}`, 'error');
+        navigate('/industry/dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    if (savedDraft) {
-      setAssessment(savedDraft);
-    } else {
-      // Cria uma nova autoavaliação vazia baseada nos critérios
-      const newAssessment: SelfAssessment = {
-        id: `draft_${numericId}`,
-        badgeId: numericId,
-        status: 'draft',
-        answers: foundBadge.criteria.map(criterion => ({
-          criterion: criterion,
-          responseText: '',
-          documents: [],
-        })),
-      };
-      setAssessment(newAssessment);
-    }
-    setIsLoading(false);
+    loadAssessment();
   }, [badgeId, navigate]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -139,16 +132,53 @@ export function SelfAssessmentPage() {
   };
 
   // Atualiza os arquivos para o passo (critério) atual
-  const handleFilesChange = (newFiles: File[]) => {
+  const handleFilesChange = async (newFiles: File[]) => {
     if (!assessment) return;
 
-    const newAnswers = [...assessment.answers];
-    newAnswers[currentStep].documents = newFiles;
+    const currentAnswer = assessment.answers[currentStep];
+    const questionId = currentAnswer.criterionId;
 
-    setAssessment({
-      ...assessment,
-      answers: newAnswers,
-    });
+    // Faz o upload de cada novo arquivo
+    for (const file of newFiles) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Chama o endpoint de upload com o ID da questão (critério)
+        const uploadedEvidence: Evidence = await apiClient.upload(`/evidences/upload?questionId=${questionId}`, formData);
+        
+        // Atualiza o estado com a nova evidência
+        const newAnswers = assessment.answers.map((ans, index) => {
+          if (index === currentStep) {
+            return { ...ans, evidences: [...ans.evidences, uploadedEvidence] };
+          }
+          return ans;
+        });
+        setAssessment({ ...assessment, answers: newAnswers });
+        addNotification(`Arquivo '${file.name}' enviado com sucesso!`, 'success');
+      } catch (error: any) {
+        addNotification(`Falha ao enviar arquivo '${file.name}': ${error.message}`, 'error');
+      }
+    }
+  };
+
+  const handleFileDelete = async (evidenceId: string) => {
+    if (!assessment || !window.confirm("Tem certeza que deseja remover esta evidência?")) return;
+
+    try {
+      await apiClient.delete(`/evidences/${evidenceId}`);
+      // Atualiza o estado para remover a evidência da UI
+      const newAnswers = assessment.answers.map((ans, index) => {
+        if (index === currentStep) {
+          return { ...ans, evidences: ans.evidences.filter(ev => ev.id !== evidenceId) };
+        }
+        return ans;
+      });
+      setAssessment({ ...assessment, answers: newAnswers });
+      addNotification('Evidência removida com sucesso.', 'success');
+    } catch (error: any) {
+      addNotification(`Falha ao remover evidência: ${error.message}`, 'error');
+    }
     setSaveStatus('idle');
   };
 
@@ -168,50 +198,42 @@ export function SelfAssessmentPage() {
   };
 
   // Requisito: "uma autoavaliação pode ser salva para ser completada depois."
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!assessment || !badge) return;
     setSaveStatus('saving');
     
-    // ATENÇÃO: JSON.stringify não salva objetos File.
-    // Criamos uma cópia "serializável" sem os arquivos.
-    const serializableAssessment = {
-        ...assessment,
-        answers: assessment.answers.map(a => ({
-            criterion: a.criterion,
-            responseText: a.responseText,
-            documents: [] // Os arquivos não são salvos no rascunho
-        }))
-    };
-    const draftKey = `assessment_draft_${badge.id}`;
-    localStorage.setItem(draftKey, JSON.stringify(serializableAssessment));
-    
-    // Simula o salvamento
-    setTimeout(() => {
+    try {
+      // Chama o endpoint PATCH para atualizar o rascunho
+      await apiClient.patch(`/self-assessments/${assessment.id}`, {
+        answers: assessment.answers,
+      });
       setSaveStatus('saved');
-    }, 1000);
+      addNotification('Rascunho salvo com sucesso!', 'success');
+    } catch (error: any) {
+      setSaveStatus('idle');
+      addNotification(`Erro ao salvar rascunho: ${error.message}`, 'error');
+    }
   };
 
   // Requisito: "a auto avaliação so será submetida quando todos os critérios forem respondidos."
   const allCriteriaAnswered = assessment?.answers.every(a => a.responseText.trim() !== '') ?? false;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!assessment || !badge || !allCriteriaAnswered) return;
 
     if (window.confirm("Tem certeza que deseja submeter esta autoavaliação? Após o envio, ela não poderá ser editada.")) {
       setIsLoading(true);
       
-      const finalAssessment = { ...assessment, status: 'submitted' };
-      
-      // ! Simula API: Enviar para o back-end
-      // Em uma API real, usaríamos FormData para enviar os arquivos.
-      console.log("Enviando avaliação final:", finalAssessment);
-      
-      // Limpa o rascunho do localStorage
-      localStorage.removeItem(`assessment_draft_${badge.id}`);
-      
-      setTimeout(() => {
+      try {
+        // Chama o endpoint para submeter a avaliação
+        await apiClient.post(`/self-assessments/${assessment.id}/submit`, {});
+        addNotification('Autoavaliação submetida com sucesso!', 'success');
         navigate('/industry/dashboard');
-      }, 1500);
+      } catch (error: any) {
+        addNotification(`Erro ao submeter avaliação: ${error.message}`, 'error');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -228,8 +250,8 @@ export function SelfAssessmentPage() {
 
     // Itera sobre todas as respostas da avaliação
     assessment.answers.forEach(answer => {
-      // Encontra o critério correspondente na lista de critérios mocados
-      const criterionData = allCriteria.find(c => c.descricao === answer.criterion);
+      // Encontra o critério correspondente na lista de critérios
+      const criterionData = allCriteria.find(c => c.id === answer.criterionId);
       // Pega o peso (pontuação) desse critério. Se não achar, é 0.
       const weight = criterionData?.peso ?? 0;
 
@@ -255,7 +277,7 @@ export function SelfAssessmentPage() {
   const totalSteps = assessment.answers.length;
 
   // --- LÓGICA DA PONTUAÇÃO (Peso da pergunta atual) ---
-  const currentCriterionData = allCriteria.find(c => c.descricao === currentCriterionAnswer.criterion);
+  const currentCriterionData = allCriteria.find(c => c.id === currentCriterionAnswer.criterionId);
   const currentWeight = currentCriterionData?.peso ?? 0;
   // --- FIM DA LÓGICA ---
 
@@ -285,7 +307,7 @@ export function SelfAssessmentPage() {
                   </div>
                 )}
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">{currentCriterionAnswer.criterion}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">{currentCriterionAnswer.criterionText}</h2>
               {/* --- FIM DO BLOCO --- */}
 
               {/* --- SEÇÃO DE PONTUAÇÃO TOTAL (MODIFICADA) --- */}
@@ -323,8 +345,9 @@ export function SelfAssessmentPage() {
                 Anexar Evidências (Opcional)
               </label>
               <FileUploader
-                  selectedFiles={currentCriterionAnswer.documents}
+                  evidences={currentCriterionAnswer.evidences}
                   onFilesChange={handleFilesChange}
+                  onFileDelete={handleFileDelete}
                   description="PDF, DOCX, PNG, ou JPG (Máx. 10MB)"
                 />
             </div>

@@ -92,7 +92,7 @@ export function IndustryDashboardPage() {
             {/* Rascunhos */}
             {drafts.length > 0 && (
               <div className="mb-4">
-                <h4 className="font-semibold text-lg mb-2 text-yellow-700">Em Andamento (Rascunhos)</h4>
+                <h4 className="font-semibold text-lg mb-2 text-yellow-700">Em Andamento</h4>
                 {drafts.map(draft => (
                   <Link
                     key={draft.id}
