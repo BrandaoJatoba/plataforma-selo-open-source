@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type FormEvent } from 'react';
 import type { Audit, AuditTopic, Evidence } from '../pages/AuditsPage';
-import { X, Star, Download, Paperclip } from 'lucide-react';
+import { X, Download, Paperclip } from 'lucide-react';
 import { BASE_URL } from '../services/apiClient';
 
 interface ParecerModalProps {
