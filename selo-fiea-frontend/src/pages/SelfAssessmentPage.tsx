@@ -3,9 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Badge } from './BadgesPage';
-import badgeIcon from '/badge.jpg';
 import { ChevronLeft, ChevronRight, Save, Send, Star } from 'lucide-react';
-// Importa o *tipo* Criterion, mas não mais os dados
 import type { Criterion } from './CriteriaPage';
 import { FileUploader } from '../components/FileUploader';
 import { apiClient } from '../services/apiClient';
@@ -35,37 +33,6 @@ interface SelfAssessment {
   status: 'draft' | 'submitted';
   answers: AssessmentAnswer[];
 }
-// --- DADOS MOCADOS (COM NOVA PONTUAÇÃO LOCAL) ---
-
-// Definição local dos critérios com a pontuação de 9 pontos totais
-const MOCKED_CRITERIA: Criterion[] = [
-  { id: 1, pilar: 'Qualidade', descricao: 'A empresa possui certificação ISO 9001?', peso: 2 },
-  { id: 2, pilar: 'Qualidade', descricao: 'Os processos de produção são documentados e seguidos rigorosamente?', peso: 2 },
-  { id: 3, pilar: 'Sustentabilidade', descricao: 'A empresa possui um programa de reciclagem de resíduos?', peso: 2 },
-  { id: 4, pilar: 'Inovação Tecnológica', descricao: 'A empresa investe em novas tecnologias para otimização de processos?', peso: 3 },
-];
-
-// (Dados ajustados para usar os critérios de CriteriaPage.tsx)
-const MOCKED_BADGES: Badge[] = [
-  { 
-    id: 1, 
-    name: 'Selo FIEA de Excelência', 
-    description: 'Concedido a empresas com excelência em gestão, sustentabilidade ambiental e inovação tecnológica.',
-    validadeMeses: 12,
-    dataInicioEmissao: new Date('2023-01-01'),
-    dataFimEmissao: new Date('2023-12-31'),
-    icon: badgeIcon,
-    // Critérios que virarão os "passos" (Baseado no MOCKED_CRITERIA local)
-    criteria: [
-      MOCKED_CRITERIA[0].descricao, // 'A empresa possui certificação ISO 9001?'
-      MOCKED_CRITERIA[1].descricao, // 'Os processos de produção são documentados e seguidos rigorosamente?'
-      MOCKED_CRITERIA[2].descricao, // 'A empresa possui um programa de reciclagem de resíduos?'
-      MOCKED_CRITERIA[3].descricao, // 'A empresa investe em novas tecnologias para otimização de processos?'
-    ] 
-  },
-];
-// (Em um app real, teríamos MOCKED_BADGES em um arquivo compartilhado)
-
 
 export function SelfAssessmentPage() {
   const { badgeId } = useParams();
@@ -76,35 +43,39 @@ export function SelfAssessmentPage() {
   const [currentStep, setCurrentStep] = useState(0); // Index do critério atual
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-  // Estado para buscar os pesos (usando a constante local)
   const { addNotification } = useNotifications();
-  const [allCriteria] = useState(MOCKED_CRITERIA);
+  const [allCriteria, setAllCriteria] = useState<Criterion[]>([]);
 
   // Carrega o selo e o rascunho salvo (se houver)
   useEffect(() => {
     const loadAssessment = async () => {
       setIsLoading(true);
       const numericId = Number(badgeId);
-      // ! Simula API: Busca o selo
-      const foundBadge = MOCKED_BADGES.find(b => b.id === numericId);
-
-      if (!foundBadge) {
-        navigate('/industry/dashboard');
-        return;
-      }
-      setBadge(foundBadge);
 
       try {
-        // 1. Tenta buscar um rascunho existente para este selo
-        // A API precisaria de um filtro por badgeId e userId
-        const existingAssessments: SelfAssessment[] = await apiClient.get(`/self-assessments?badgeId=${numericId}`);
+        // Carrega Selo, Critérios e a Autoavaliação em paralelo
+        const [badgeData, criteriaData, existingAssessments] = await Promise.all([
+          apiClient.get(`/selos/${numericId}`),
+          apiClient.get('/criteria'), // Busca todos os critérios para ter os pesos
+          apiClient.get(`/self-assessments?badgeId=${numericId}`) // Busca rascunho
+        ]);
+
+        if (!badgeData) {
+          addNotification('Selo não encontrado.', 'error');
+          navigate('/industry/dashboard');
+          return;
+        }
+
+        setBadge(badgeData);
+        setAllCriteria(criteriaData);
         
-        if (existingAssessments.length > 0) {
+        if (existingAssessments && existingAssessments.length > 0) {
           setAssessment(existingAssessments[0]);
         } else {
-          // 2. Se não existir, cria um novo
+          // Se não existir, cria um novo
           const newAssessment: SelfAssessment = await apiClient.post('/self-assessments', { badgeId: numericId });
-          // A API deve retornar a estrutura completa da nova avaliação
+          // A API deve retornar a estrutura completa da nova avaliação,
+          // incluindo o array 'answers' inicializado para cada critério do selo.
           setAssessment(newAssessment);
         }
       } catch (error: any) {
@@ -116,7 +87,7 @@ export function SelfAssessmentPage() {
     };
 
     loadAssessment();
-  }, [badgeId, navigate]);
+  }, [badgeId, navigate, addNotification]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (!assessment) return;
