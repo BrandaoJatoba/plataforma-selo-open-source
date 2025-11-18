@@ -1,7 +1,8 @@
 // src/components/ParecerModal.tsx
 
 import { useState, useEffect, type FormEvent } from 'react';
-import type { Audit, AuditTopic, Evidence } from '../pages/AuditsPage';
+import type { Audit, AuditTopic } from '../pages/AuditsPage';
+import type { Evidence } from '../types/Evidence'
 import { X, Download, Paperclip } from 'lucide-react';
 import { BASE_URL } from '../services/apiClient';
 

@@ -15,7 +15,7 @@ COPY . .
 # Cria um arquivo .env de produção temporário para o build
 # IMPORTANTE: A URL deve ser onde o seu backend está acessível PARA O SEU NAVEGADOR.
 # Se for rodar localmente, use http://localhost:3000/api/v1
-RUN echo "VITE_API_BASE_URL=http://localhost:3000/api/v1" > .env.production
+RUN echo "VITE_API_BASE_URL=http://localhost:3000//api/v1" > .env.production
 
 # Gera a pasta 'dist' otimizada
 RUN npm run build
