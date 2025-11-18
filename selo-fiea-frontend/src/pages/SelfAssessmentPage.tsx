@@ -8,17 +8,9 @@ import { ChevronLeft, ChevronRight, Save, Send, Star } from 'lucide-react';
 // Importa o *tipo* Criterion, mas não mais os dados
 import type { Criterion } from './CriteriaPage';
 import { FileUploader } from '../components/FileUploader';
-import { apiClient } from '../services/apiClient';
+import { apiClient } from '../services/apiClient'; // A importação de Evidence virá de 'types'
 import { useNotifications } from '../hooks/useNotifications';
-
-// --- Interfaces ---
-
-// Metadados de uma evidência salva na API
-export interface Evidence {
-  id: string;
-  fileName: string;
-  url: string;
-}
+import type { Evidence } from '../types/Evidence';
 
 // A resposta para um critério específico
 interface AssessmentAnswer {

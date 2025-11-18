@@ -1,7 +1,7 @@
 // src/components/FileUploader.tsx
 import { UploadCloud, X, FileText } from 'lucide-react';
 import React from 'react';
-import type { Evidence } from '../pages/SelfAssessmentPage';
+import type { Evidence } from '../types/Evidence';
 
 interface FileUploaderProps {
   evidences: Evidence[];
