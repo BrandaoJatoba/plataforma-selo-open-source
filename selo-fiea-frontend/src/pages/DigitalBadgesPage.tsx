@@ -69,12 +69,20 @@ export function DigitalBadgesPage() {
     }
   };
 
-  const handleDownloadQr = (issued: DigitalBadge) => {
-    // Lógica para gerar e baixar o QR Code.
-    // Por enquanto, apenas um alerta para simular a ação.
-    alert(`Simulando download do QR Code para o selo da empresa ${issued.company.nome_fantasia}.
-URL: ${window.location.origin}${issued.verificationUrl}`);
-  };
+const handleDownloadQr = (issued: DigitalBadge) => {
+  const url = `${window.location.origin}${issued.verificationUrl}`;
+
+  // Gera o QR Code via API externa
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(
+    url
+  )}`;
+
+  // Cria link temporário para baixar
+  const link = document.createElement("a");
+  link.href = qrUrl;
+  link.download = `qrcode_${issued.company.nome_fantasia}.png`;
+  link.click();
+};
 
   return (
     <div className="min-h-screen bg-gray-50">
