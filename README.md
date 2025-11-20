@@ -10,7 +10,7 @@ Um sistema web para gerenciar o ciclo completo de um **Selo**
 ### Objetivos
 - Facilitar e padronizar o **processo de certificação** (autoavaliação → auditoria → emissão → renovação).
 - Promover **boas práticas** em sustentabilidade, qualidade, eficiência e inovação.
-- Oferecer **transparência** para empresas e para a FIEA via relatórios e dashboards.
+
 
 ### Escopo (MVP → Evoluções)
 - **MVP**: gestão de empresas e usuários; questionários de autoavaliação; fluxo de auditoria externa; emissão do selo (digital); dashboard básico; relatórios essenciais; notificações por e-mail; área de capacitação com upload de materiais.
