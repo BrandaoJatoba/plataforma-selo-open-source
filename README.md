@@ -1,11 +1,11 @@
-# Design do Sistema — Certificação de Indústrias com Selo FIEA de Excelência e Inovação
+# Design do Sistema — Certificação com Selo
 
 > **Stack alvo**: Front-end em **React** (TypeScript) e back-end em **Python** (FastAPI ou Django REST Framework), banco **PostgreSQL** e implantação em contêineres (**Docker** + **Kubernetes** ou Docker Compose para MVP).
 
 ---
 
 ## 1) Visão Geral
-Um sistema web para gerenciar o ciclo completo do **Selo FIEA**: cadastro de indústrias, autoavaliações, auditorias externas, emissão/renovação do selo, trilhas de capacitação, relatórios e dashboards para FIEA e empresas.
+Um sistema web para gerenciar o ciclo completo de um **Selo**
 
 ### Objetivos
 - Facilitar e padronizar o **processo de certificação** (autoavaliação → auditoria → emissão → renovação).
